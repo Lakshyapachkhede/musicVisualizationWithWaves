@@ -23,7 +23,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Music Wave Visualization")
 
 # Load audio file
-file_path = r'E:\projects\musicPlayerWithVisualization\sampleAudio\youAreMyHeart.wav'
+file_path = r'..\sampleAudio\youAreMyHeart.wav'
 wf = wave.open(file_path, 'rb')
 
 p = pyaudio.PyAudio()

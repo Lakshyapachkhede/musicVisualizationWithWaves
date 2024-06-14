@@ -8,19 +8,18 @@ pygame.init()
 # Constants
 WIDTH = 800
 HEIGHT = 400
-FPS = 120
+FPS = 60
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
-
 
 # Screen setup
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Music Wave Visualization")
 
 # Load audio file
-file_path = r'E:\projects\musicPlayerWithVisualization\sampleAudio\boom.wav'
+file_path = r'..\sampleAudio\youAreMyHeart.wav'
 wf = wave.open(file_path, 'rb')
 
 # PyAudio setup
@@ -32,17 +31,13 @@ stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
                 rate=wf.getframerate(),
                 output=True)
 
-# Read audio data
+# Read initial audio data
+data = wf.readframes(1024)
 
-def visulalization():
-    global run
-    data = wf.readframes(1024)
-# Play audio
-    if data:
-        stream.write(data)
-        data = wf.readframes(1024)
-    else:
-        run = False
+def visualization():
+    global data
+    if len(data) == 0:
+        return False
     
     # Convert audio data to numpy array
     audio_data = np.frombuffer(data, dtype=np.int16)
@@ -52,18 +47,17 @@ def visulalization():
     
     # Clear screen
     screen.fill(BLACK)
-
-
+    
     # Draw waveform
     for x in range(WIDTH):
         y = int(HEIGHT / 2 + audio_data[x % len(audio_data)] * (HEIGHT / 2))
         pygame.draw.line(screen, RED, (x, HEIGHT // 2), (x, y))
-
-
+    
+    return True
 
 # Main function
 def main():
-    global run
+    global data
     run = True
     clock = pygame.time.Clock()
 
@@ -74,9 +68,13 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
 
-        visulalization()
+        if not visualization():
+            run = False
 
-  
+        if len(data) > 0:
+            stream.write(data)
+            data = wf.readframes(1024)
+        
         pygame.display.flip()
 
     pygame.quit()
@@ -84,5 +82,6 @@ def main():
     stream.close()
     p.terminate()
     sys.exit()
+
 # Run the main function
 main()
